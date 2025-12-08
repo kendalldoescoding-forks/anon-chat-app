@@ -440,25 +440,21 @@ async function seenMessage(chatId, messageId) {
 }
 
 function getRandomPairFromWaitingList() {
-  /**
-   * Since we indexed waiting users by emailOrLoginId, we need to first
-   * retrieve all the keys which would be used for getting random users
-   */
   const waitingUserIds = Object.keys(waitingUsers);
-  const pairedUsers = [];
+  if (waitingUserIds.length < 2) return [];
 
+  const pairedUsers = [];
   for (let i = 0; i < 2; i++) {
     const randomIndex = Math.floor(Math.random() * waitingUserIds.length);
-
     const randomId = waitingUserIds[randomIndex];
     pairedUsers.push(waitingUsers[randomId]);
-
     delWaitingUser(randomId);
     waitingUserIds.splice(randomIndex, 1);
   }
 
   return pairedUsers;
 }
+
 
 /**
  * @param {string} emailOrLoginId
@@ -478,26 +474,36 @@ function isUserActive(emailOrLoginId) {
 function addToWaitingList({ loginId, email, socket }) {
   const emailOrLoginId = email ?? loginId;
 
-  waitingUsers[emailOrLoginId] = new Proxy(
-    {
-      loginId,
-      email,
-      socketConnections: [socket],
-      socketIds: [socket.id],
-      chatIds: [],
-      currentChatId: null,
-    },
-    {
-      get(target, prop, receiver) {
-        if (prop === 'emailOrLoginId') {
-          return target.email ?? target.loginId;
-        }
-
-        return Reflect.get(...arguments);
+  if (waitingUsers[emailOrLoginId]) {
+    console.log(`User already in waiting list: ${emailOrLoginId}. Adding new socket connection.`);
+    waitingUsers[emailOrLoginId].socketConnections.push(socket);
+    waitingUsers[emailOrLoginId].socketIds.push(socket.id);
+    console.log(`Updated socketIds: ${waitingUsers[emailOrLoginId].socketIds}`);
+  } else {
+    console.log(`Adding new user to waiting list: ${emailOrLoginId}`);
+    waitingUsers[emailOrLoginId] = new Proxy(
+      {
+        loginId,
+        email,
+        socketConnections: [socket],
+        socketIds: [socket.id],
+        chatIds: [],
+        currentChatId: null,
       },
-    }
-  );
+      {
+        get(target, prop) {
+          if (prop === 'emailOrLoginId') {
+            return target.email ?? target.loginId;
+          }
+          return Reflect.get(target, prop);
+        },
+      }
+    );
+    console.log(`Waiting users now: ${Object.keys(waitingUsers)}`);
+  }
 }
+
+
 
 function getWaitingUserLen() {
   return Object.keys(waitingUsers).length;
