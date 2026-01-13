@@ -214,17 +214,17 @@ const Profile = () => {
 										Age
 									</label>
 									<select
-										id='age'
+										id="age"
 										defaultValue={19}
 										className="outline-none bg-transparent text-right cursor-pointer"
 										ref={ageRef}
 										onChange={(e) => {
 											setAge(Number(e.target.value));
 										}}
-										>
+									>
 										{Array.from({ length: 109 }, (_, i) => 12 + i).map((num) => (
 											<option key={num} value={num}>
-											{num}
+												{num}
 											</option>
 										))}
 									</select>
