@@ -199,12 +199,12 @@ const Profile = () => {
 										Gender
 									</label>
 									<select
-										id="genderSelect"
+										id="gender"
 										ref={genderRef}
-										className="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-fit p-2.5 bg-transparent dark:bg-gray-700 border-gray-600 placeholder-gray-400 text-primary dark:text-white"
+										className="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-fit p-2.5 bg-transparent dark:bg-gray-700 border-gray-600 placeholder-gray-400 text-primary dark:text-white cursor-pointer"
 										defaultValue="Unknown"
 									>
-										<option value="Unknown">Unknown</option>
+										<option value="Unknown">Prefer not to say</option>
 										<option value="Female">Female</option>
 										<option value="Male">Male</option>
 									</select>
@@ -213,17 +213,21 @@ const Profile = () => {
 									<label className="text-primary dark:text-white" htmlFor="age">
 										Age
 									</label>
-									<input
-										type="number"
-										placeholder="19"
-										className="outline-none bg-transparent text-right"
+									<select
+										id='age'
+										defaultValue={19}
+										className="outline-none bg-transparent text-right cursor-pointer"
 										ref={ageRef}
-										min="12"
-										max="120"
 										onChange={(e) => {
-											setAge(e.target.value);
+											setAge(Number(e.target.value));
 										}}
-									/>
+										>
+										{Array.from({ length: 109 }, (_, i) => 12 + i).map((num) => (
+											<option key={num} value={num}>
+											{num}
+											</option>
+										))}
+									</select>
 								</div>
 							</section>
 						</div>
